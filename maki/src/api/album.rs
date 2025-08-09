@@ -221,29 +221,10 @@ impl DirOptions {
     }
 }
 
-
-#[derive(Deserialize, PartialEq)]
-enum DirOptions {
-    #[serde(alias = "asc")]
-    Asc,
-    #[serde(alias = "desc")]
-    Desc,
-}
-
-impl DirOptions {
-    fn as_str(&self) -> &str {
-        match self {
-            Self::Asc => "asc",
-            Self::Desc => "desc",
-        }
-    }
-}
-
 enum PrimaryValue {
     Int(i32),
     String(String),
 }
-
 
 #[axum_macros::debug_handler]
 pub async fn get_albums(
