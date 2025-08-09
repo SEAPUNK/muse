@@ -1,0 +1,49 @@
+services:
+  maki-db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: password # change this
+
+  # api
+  maki:
+#    image: ghcr.io/espeon/muse/maki:latest
+    build: ./maki
+    volumes:
+      - "./data/maki-music:/music"
+      # art cache folder
+      - "./data/maki-art:/art"
+    ports:
+      - "3033:3033"
+    env_file:
+      - ".env"
+    depends_on:
+      - "maki-db"
+
+  # frontend
+  nozomi:
+#    image: ghcr.io/espeon/muse/nozomi:latest
+    build: ./nozomi
+    ports:
+      - "3031:3031"
+    env_file:
+      - ".env"
+    depends_on:
+      - "maki"
+      - "maki-db"
+
+# not publicly available
+#
+#  umi:
+#    image: ghcr.io/espeon/umi/umi:latest
+#    build: ./umi
+#    volumes:
+#      # mount for lyrics cache
+#      - ./tmp/db:/usr/src/app/db
+#    ports:
+#      - "3032:3032"
+#    env_file:
+#      - ".env"
+
+networks:
+  default:
+    name: muse
