@@ -33,8 +33,8 @@ export async function middleware(request: NextRequest) {
   } catch (e) {
     try {
       const newAccess = await refreshAccessToken(request);
-      if (!newAccess)
-        throw new Error("No new access token given. Likely no refresh token.");
+      // if (!newAccess)
+      //   throw new Error("No new access token given. Likely no refresh token.");
       const response = NextResponse.next();
       response.cookies.set("authjs.session-token", newAccess, {
         httpOnly: true,
@@ -43,9 +43,11 @@ export async function middleware(request: NextRequest) {
       // redirect to same page, but with new access token
       return response;
     } catch (e) {
+      console.log("erroring");
+      console.log(e);
       console.log("No refresh token, redirecting to sign in...");
       const response = NextResponse.redirect(
-        process.env.NOZOMI_BASE_URL + "/auth/login",
+        process.env.NOZOMI_BASE_URL + "/auth/login"
       );
       response.cookies.delete("authjs.session-token");
       response.cookies.delete("authjs.refresh-token");

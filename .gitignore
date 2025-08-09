@@ -3,4 +3,4 @@ umi*
 .env
 docker-compose.yml
 NOTES.txt
-
+/data/

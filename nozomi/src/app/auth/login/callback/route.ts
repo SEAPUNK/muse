@@ -27,9 +27,11 @@ export async function GET(request: NextRequest) {
       },
     },
   ).then((res) => (res.ok ? res.json() : res.text()));
+  console.log(data);
 
   // set session and refresh token and redirect
   if (data.session_token) {
+    console.log("YES IT IS DOPING THINGS");
     const { session_token } = data;
     ck.set("authjs.session-token", session_token.token, {
       httpOnly: true,

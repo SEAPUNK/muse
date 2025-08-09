@@ -6,6 +6,7 @@ use oauth2::{
     PkceCodeChallenge, RedirectUrl, StandardTokenResponse, TokenResponse, TokenUrl,
 };
 use time::Duration;
+use tracing::debug;
 
 use crate::api::auth::providers::OIDCProfileResponse;
 
@@ -64,6 +65,8 @@ impl AuthProvider for GenericOidcPkceProvider {
     }
 
     fn generate_challenge(&mut self) -> anyhow::Result<String> {
+        debug!(target: "providers/generic", "generate_challenge");
+
         // Generate a PKCE challenge.
         let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
 
@@ -92,6 +95,7 @@ impl AuthProvider for GenericOidcPkceProvider {
         csrf_token: &str,
         auth_code: &str,
     ) -> anyhow::Result<StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>> {
+        debug!(target: "providers/generic", "verify challenge");
         if let Some(pkce_verifier) = self.pkce_store.get(csrf_token) {
             // trade verifier for access token
             Ok(self
@@ -111,9 +115,12 @@ impl AuthProvider for GenericOidcPkceProvider {
         token: &StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>,
     ) -> anyhow::Result<OIDCProfileResponse> {
         let token = token.access_token().secret();
+        debug!(target: "providers/generic", "get_user_info");
+        let url = format!("{}api/oidc/userinfo", self.auth_issuer);
+        debug!(target: "providers/generic", url);
         Ok(self
             .reqwest
-            .get(format!("{}oidc/v1/userinfo", self.auth_issuer))
+            .get(url)
             .bearer_auth(token)
             .send()
             .await?
@@ -126,6 +133,7 @@ impl AuthProvider for GenericOidcPkceProvider {
         token: &StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>,
         profile: &OIDCProfileResponse,
     ) -> anyhow::Result<ExternalAccountInfo> {
+        debug!(target: "providers/generic", "make_account_info");
         Ok(ExternalAccountInfo {
             provider_id: profile.sub.clone(),
             provider: "Generic".to_string(),
