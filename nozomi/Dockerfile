@@ -23,7 +23,7 @@ COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
 # tests & build
-RUN bun test
+# RUN bun test # there are no tests right now
 RUN bun run build
 
 # copy production dependencies and source code into final image
